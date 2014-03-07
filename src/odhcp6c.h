@@ -63,6 +63,7 @@ enum dhcvp6_opt {
 	DHCPV6_OPT_PD_EXCLUDE = 67,
 	DHCPV6_OPT_SOL_MAX_RT = 82,
 	DHCPV6_OPT_INF_MAX_RT = 83,
+	DHCPV6_OPT_DHCP4_O_DHCP6_SERVER = 150,
 #ifdef EXT_PREFIX_CLASS
 	/* draft-bhandari-dhc-class-based-prefix, not yet standardized */
 	DHCPV6_OPT_PREFIX_CLASS = EXT_PREFIX_CLASS,
@@ -215,6 +216,7 @@ enum odhcp6c_state {
 	STATE_AFTR_NAME,
 	STATE_VENDORCLASS,
 	STATE_USERCLASS,
+    STATE_DHCP4O6_SERVERS,
 	_STATE_MAX
 };
 

@@ -163,6 +163,7 @@ int init_dhcpv6(const char *ifname, unsigned int options, int sol_timeout)
 	// Create ORO
 	if (!(client_options & DHCPV6_STRICT_OPTIONS)) {
 		uint16_t oro[] = {
+            htons(DHCPV6_OPT_DHCP4_O_DHCP6_SERVER),
 			htons(DHCPV6_OPT_SIP_SERVER_D),
 			htons(DHCPV6_OPT_SIP_SERVER_A),
 			htons(DHCPV6_OPT_DNS_SERVERS),
@@ -806,7 +807,10 @@ static int dhcpv6_handle_advert(enum dhcpv6_msg orig, const int rc,
 			dhcpv6_for_each_option(&h[1], oend, otype, olen, d)
 				if (otype == DHCPV6_OPT_IA_ADDR)
 					have_na = true;
-		}
+        } else if (otype == DHCPV6_OPT_DHCP4_O_DHCP6_SERVER) {
+			if (olen % 16 == 0)
+				odhcp6c_add_state(STATE_DHCP4O6_SERVERS, odata, olen);
+        }
 	}
 
 	if ((!have_na && na_mode == IA_MODE_FORCE) ||
@@ -912,6 +916,7 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 		odhcp6c_clear_state(STATE_SIP_IP);
 		odhcp6c_clear_state(STATE_SIP_FQDN);
 		odhcp6c_clear_state(STATE_AFTR_NAME);
+		odhcp6c_clear_state(STATE_DHCP4O6_SERVERS);
 	}
 
 	// Parse and find all matching IAs
@@ -963,6 +968,9 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 		else if (otype == DHCPV6_OPT_DNS_SERVERS) {
 			if (olen % 16 == 0)
 				odhcp6c_add_state(STATE_DNS, odata, olen);
+        } else if (otype == DHCPV6_OPT_DHCP4_O_DHCP6_SERVER) {
+			if (olen % 16 == 0)
+				odhcp6c_add_state(STATE_DHCP4O6_SERVERS, odata, olen);
 		} else if (otype == DHCPV6_OPT_DNS_DOMAIN) {
 			odhcp6c_add_state(STATE_SEARCH, odata, olen);
 		} else if (otype == DHCPV6_OPT_SNTP_SERVERS) {
@@ -1014,7 +1022,8 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 				otype != DHCPV6_OPT_SERVERID) {
 			odhcp6c_add_state(STATE_CUSTOM_OPTS,
 					&odata[-4], olen + 4);
-		}
+        }
+
 	}
 
 	if (orig != DHCPV6_MSG_INFO_REQ) {
