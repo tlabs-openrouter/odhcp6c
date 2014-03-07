@@ -72,6 +72,7 @@ enum dhcvp6_opt {
 	/* draft-donley-dhc-cer-id-option-03 */
 	DHCPV6_OPT_CER_ID = EXT_CER_ID,
 #endif
+	DHCPV6_OPT_DHCP4_O_DHCP6_SERVER = 88,
 	/* draft-ietf-softwire-map-dhcp-08 */
 	DHCPV6_OPT_S46_RULE = 89,
 	DHCPV6_OPT_S46_BR = 90,
@@ -268,6 +269,7 @@ enum odhcp6c_state {
 	STATE_S46_MAPE,
 	STATE_S46_LW,
 	STATE_PASSTHRU,
+	STATE_DHCP4O6_SERVERS,
 	_STATE_MAX
 };
 
