@@ -435,7 +435,7 @@ void script_call(const char *status, int delay, bool resume)
 		ipv6_to_env("RDNSS", dns, dns_len / sizeof(*dns));
 		ipv6_to_env("SNTP_IP", sntp, sntp_ip_len / sizeof(*sntp));
 		ipv6_to_env("NTP_IP", ntp, ntp_ip_len / sizeof(*ntp));
-		ipv6_to_env("FOS", fos, fos_len / sizeof(*fos));
+		ipv6_to_env("DHCP4_O_DHCP6_SERVERS", fos, fos_len / sizeof(*fos));
 		fqdn_to_env("NTP_FQDN", ntp_dns, ntp_dns_len);
 		ipv6_to_env("SIP_IP", sip, sip_ip_len / sizeof(*sip));
 		fqdn_to_env("DOMAINS", search, search_len);
