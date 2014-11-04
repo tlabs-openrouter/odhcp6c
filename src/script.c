@@ -336,7 +336,7 @@ void script_delay_call(const char *status, int timeout)
 
 void script_call(const char *status)
 {
-	size_t dns_len, search_len, custom_len, sntp_ip_len, ntp_ip_len, ntp_dns_len, fos_len;
+	size_t dns_len, search_len, custom_len, sntp_ip_len, ntp_ip_len, ntp_dns_len, fos_88_len, fos_99_len;
 	size_t sip_ip_len, sip_fqdn_len, aftr_name_len, cer_len, ncs_fqdn_len;
 	size_t s46_mapt_len, s46_mape_len, s46_lw_len;
 
@@ -347,7 +347,8 @@ void script_call(const char *status)
 	}
 
 	struct in6_addr *dns = odhcp6c_get_state(STATE_DNS, &dns_len);
-	struct in6_addr *fos = odhcp6c_get_state(STATE_DHCP4O6_SERVERS, &fos_len);
+	struct in6_addr *fos_88 = odhcp6c_get_state(STATE_DHCP4O6_SERVERS_88, &fos_88_len);
+	struct in6_addr *fos_99 = odhcp6c_get_state(STATE_DHCP4O6_SERVERS_99, &fos_99_len);
 	uint8_t *search = odhcp6c_get_state(STATE_SEARCH, &search_len);
 	uint8_t *custom = odhcp6c_get_state(STATE_CUSTOM_OPTS, &custom_len);
 	struct in6_addr *sntp = odhcp6c_get_state(STATE_SNTP_IP, &sntp_ip_len);
@@ -374,7 +375,8 @@ void script_call(const char *status)
 		ipv6_to_env("RDNSS", dns, dns_len / sizeof(*dns));
 		ipv6_to_env("SNTP_IP", sntp, sntp_ip_len / sizeof(*sntp));
 		ipv6_to_env("NTP_IP", ntp, ntp_ip_len / sizeof(*ntp));
-		ipv6_to_env("DHCP4_O_DHCP6_SERVERS", fos, fos_len / sizeof(*fos));
+		ipv6_to_env("DHCP4_O_DHCP6_SERVERS_88", fos_88, fos_88_len / sizeof(*fos_88));
+		ipv6_to_env("DHCP4_O_DHCP6_SERVERS_99", fos_99, fos_99_len / sizeof(*fos_99));
 		fqdn_to_env("NTP_FQDN", ntp_dns, ntp_dns_len);
 		ipv6_to_env("SIP_IP", sip, sip_ip_len / sizeof(*sip));
 		fqdn_to_env("DOMAINS", search, search_len);
