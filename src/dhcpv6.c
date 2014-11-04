@@ -163,7 +163,8 @@ int init_dhcpv6(const char *ifname, unsigned int options, int sol_timeout)
 	// Create ORO
 	if (!(client_options & DHCPV6_STRICT_OPTIONS)) {
 		uint16_t oro[] = {
-			htons(DHCPV6_OPT_DHCP4_O_DHCP6_SERVER),
+			htons(DHCPV6_OPT_DHCP4_O_DHCP6_SERVER_88),
+			htons(DHCPV6_OPT_DHCP4_O_DHCP6_SERVER_99),
 			htons(DHCPV6_OPT_SIP_SERVER_D),
 			htons(DHCPV6_OPT_SIP_SERVER_A),
 			htons(DHCPV6_OPT_DNS_SERVERS),
@@ -831,9 +832,12 @@ static int dhcpv6_handle_advert(enum dhcpv6_msg orig, const int rc,
 				if (otype == DHCPV6_OPT_IA_ADDR &&
 						olen >= -4 + sizeof(struct dhcpv6_ia_addr))
 					have_na = true;
-		} else if (otype == DHCPV6_OPT_DHCP4_O_DHCP6_SERVER) {
+		} else if (otype == DHCPV6_OPT_DHCP4_O_DHCP6_SERVER_99) {
 			if (olen % 16 == 0)
-				odhcp6c_add_state(STATE_DHCP4O6_SERVERS, odata, olen);
+				odhcp6c_add_state(STATE_DHCP4O6_SERVERS_99, odata, olen);
+		} else if (otype == DHCPV6_OPT_DHCP4_O_DHCP6_SERVER_88) {
+			if (olen % 16 == 0)
+				odhcp6c_add_state(STATE_DHCP4O6_SERVERS_88, odata, olen);
 		}
 	}
 
@@ -946,7 +950,8 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 		odhcp6c_clear_state(STATE_S46_LW);
 		odhcp6c_clear_state(STATE_PASSTHRU);
 		odhcp6c_clear_state(STATE_CUSTOM_OPTS);
-		odhcp6c_clear_state(STATE_DHCP4O6_SERVERS);
+		odhcp6c_clear_state(STATE_DHCP4O6_SERVERS_88);
+		odhcp6c_clear_state(STATE_DHCP4O6_SERVERS_99);
 		odhcp6c_clear_state(STATE_NCS_FQDN);
 
 		// Parse and find all matching IAs
@@ -1088,9 +1093,12 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 					otype == DHCPV6_OPT_FQDN ||
 					otype == DHCPV6_OPT_RECONF_ACCEPT) {
 				passthru = false;
-			} else if (otype == DHCPV6_OPT_DHCP4_O_DHCP6_SERVER) {
+			} else if (otype == DHCPV6_OPT_DHCP4_O_DHCP6_SERVER_99) {
 				if (olen % 16 == 0)
-					odhcp6c_add_state(STATE_DHCP4O6_SERVERS, odata, olen);
+					odhcp6c_add_state(STATE_DHCP4O6_SERVERS_99, odata, olen);
+			} else if (otype == DHCPV6_OPT_DHCP4_O_DHCP6_SERVER_88) {
+				if (olen % 16 == 0)
+					odhcp6c_add_state(STATE_DHCP4O6_SERVERS_88, odata, olen);
 			} else if (otype == DHCPV6_OPT_NCS_FQDN) {
 				size_t cur_len;
 				odhcp6c_get_state(STATE_NCS_FQDN, &cur_len);
