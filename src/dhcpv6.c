@@ -174,6 +174,7 @@ int init_dhcpv6(const char *ifname, unsigned int options, int sol_timeout)
 			htons(DHCPV6_OPT_PD_EXCLUDE),
 			htons(DHCPV6_OPT_SOL_MAX_RT),
 			htons(DHCPV6_OPT_INF_MAX_RT),
+			htons(DHCPV6_OPT_NCS_FQDN),
 #ifdef EXT_CER_ID
 			htons(DHCPV6_OPT_CER_ID),
 #endif
@@ -946,6 +947,7 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 		odhcp6c_clear_state(STATE_PASSTHRU);
 		odhcp6c_clear_state(STATE_CUSTOM_OPTS);
 		odhcp6c_clear_state(STATE_DHCP4O6_SERVERS);
+		odhcp6c_clear_state(STATE_NCS_FQDN);
 
 		// Parse and find all matching IAs
 		dhcpv6_for_each_option(opt, end, otype, olen, odata) {
@@ -1089,6 +1091,11 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 			} else if (otype == DHCPV6_OPT_DHCP4_O_DHCP6_SERVER) {
 				if (olen % 16 == 0)
 					odhcp6c_add_state(STATE_DHCP4O6_SERVERS, odata, olen);
+			} else if (otype == DHCPV6_OPT_NCS_FQDN) {
+				size_t cur_len;
+				odhcp6c_get_state(STATE_NCS_FQDN, &cur_len);
+				if (cur_len == 0)
+					odhcp6c_add_state(STATE_NCS_FQDN, odata, olen);
 			} else {
 				odhcp6c_add_state(STATE_CUSTOM_OPTS, &odata[-4], olen + 4);
 			}
