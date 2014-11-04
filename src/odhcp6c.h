@@ -82,6 +82,8 @@ enum dhcvp6_opt {
 	DHCPV6_OPT_S46_CONT_MAPE = 94,
 	DHCPV6_OPT_S46_CONT_MAPT = 95,
 	DHCPV6_OPT_S46_CONT_LW = 96,
+
+	DHCPV6_OPT_NCS_FQDN = 198,
 };
 
 enum dhcpv6_opt_npt {
@@ -270,6 +272,7 @@ enum odhcp6c_state {
 	STATE_S46_LW,
 	STATE_PASSTHRU,
 	STATE_DHCP4O6_SERVERS,
+	STATE_NCS_FQDN,
 	_STATE_MAX
 };
 

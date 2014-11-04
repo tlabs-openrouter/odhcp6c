@@ -421,7 +421,7 @@ void script_call(const char *status, int delay, bool resume)
 		size_t dns_len, search_len, custom_len, sntp_ip_len, ntp_ip_len, ntp_dns_len;
 		size_t sip_ip_len, sip_fqdn_len, aftr_name_len, cer_len, addr_len;
 		size_t s46_mapt_len, s46_mape_len, s46_lw_len, passthru_len;
-		size_t fos_len;
+		size_t fos_len, ncs_fqdn_len;
 
 		signal(SIGTERM, SIG_DFL);
 		if (delay > 0) {
@@ -445,6 +445,7 @@ void script_call(const char *status, int delay, bool resume)
 		uint8_t *s46_mape = odhcp6c_get_state(STATE_S46_MAPE, &s46_mape_len);
 		uint8_t *s46_lw = odhcp6c_get_state(STATE_S46_LW, &s46_lw_len);
 		uint8_t *passthru = odhcp6c_get_state(STATE_PASSTHRU, &passthru_len);
+		uint8_t *ncs_fqdn = odhcp6c_get_state(STATE_NCS_FQDN, &ncs_fqdn_len);
 
 		size_t prefix_len, address_len, ra_pref_len,
 			ra_route_len, ra_dns_len, ra_search_len;
@@ -465,6 +466,7 @@ void script_call(const char *status, int delay, bool resume)
 		fqdn_to_env("DOMAINS", search, search_len);
 		fqdn_to_env("SIP_DOMAIN", sip_fqdn, sip_fqdn_len);
 		fqdn_to_env("AFTR", aftr_name, aftr_name_len);
+		fqdn_to_env("NCS", ncs_fqdn, ncs_fqdn_len);
 		ipv6_to_env("CER", cer, cer_len / sizeof(*cer));
 		s46_to_env(STATE_S46_MAPE, s46_mape, s46_mape_len);
 		s46_to_env(STATE_S46_MAPT, s46_mapt, s46_mapt_len);
