@@ -174,6 +174,7 @@ int init_dhcpv6(const char *ifname, unsigned int options, int sol_timeout)
 			htons(DHCPV6_OPT_PD_EXCLUDE),
 			htons(DHCPV6_OPT_SOL_MAX_RT),
 			htons(DHCPV6_OPT_INF_MAX_RT),
+			htons(DHCPV6_OPT_NCS_FQDN),
 #ifdef EXT_PREFIX_CLASS
 			htons(DHCPV6_OPT_PREFIX_CLASS),
 #endif
@@ -927,6 +928,7 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 		odhcp6c_clear_state(STATE_S46_MAPT);
 		odhcp6c_clear_state(STATE_S46_MAPE);
 		odhcp6c_clear_state(STATE_S46_LW);
+		odhcp6c_clear_state(STATE_NCS_FQDN);
 	}
 
 	// Parse and find all matching IAs
@@ -1028,6 +1030,11 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 			if (inf_max_rt >= DHCPV6_INF_MAX_RT_MIN &&
 					inf_max_rt <= DHCPV6_INF_MAX_RT_MAX)
 				dhcpv6_retx[DHCPV6_MSG_INFO_REQ].max_timeo = inf_max_rt;
+		} else if (otype == DHCPV6_OPT_NCS_FQDN) {
+			size_t cur_len;
+			odhcp6c_get_state(STATE_NCS_FQDN, &cur_len);
+			if (cur_len == 0)
+				odhcp6c_add_state(STATE_NCS_FQDN, odata, olen);
 #ifdef EXT_CER_ID
 		} else if (otype == DHCPV6_OPT_CER_ID && olen == -4 +
 				sizeof(struct dhcpv6_cer_id)) {
