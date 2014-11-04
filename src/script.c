@@ -336,7 +336,7 @@ void script_delay_call(const char *status, int timeout)
 
 void script_call(const char *status)
 {
-	size_t dns_len, search_len, custom_len, sntp_ip_len, ntp_ip_len, ntp_dns_len, fos_88_len, fos_99_len;
+	size_t dns_len, search_len, custom_len, sntp_ip_len, ntp_ip_len, ntp_dns_len, fos_88_len, fos_99_len, client_id_len;
 	size_t sip_ip_len, sip_fqdn_len, aftr_name_len, cer_len, ncs_fqdn_len;
 	size_t s46_mapt_len, s46_mape_len, s46_lw_len;
 
@@ -370,6 +370,8 @@ void script_call(const char *status)
 	uint8_t *ra_route = odhcp6c_get_state(STATE_RA_ROUTE, &ra_route_len);
 	uint8_t *ra_dns = odhcp6c_get_state(STATE_RA_DNS, &ra_dns_len);
 
+	uint8_t *client_id = odhcp6c_get_state(STATE_CLIENT_ID, &client_id_len);
+
 	// Don't set environment before forking, because env is leaky.
 	if (fork() == 0) {
 		ipv6_to_env("RDNSS", dns, dns_len / sizeof(*dns));
@@ -394,6 +396,8 @@ void script_call(const char *status)
 		entry_to_env("RA_ADDRESSES", ra_pref, ra_pref_len, ENTRY_ADDRESS);
 		entry_to_env("RA_ROUTES", ra_route, ra_route_len, ENTRY_ROUTE);
 		entry_to_env("RA_DNS", ra_dns, ra_dns_len, ENTRY_HOST);
+
+		bin_to_env(client_id, client_id_len); /* will be exported as "OPTION_1" into environment */
 
 		argv[2] = (char*)status;
 		execv(argv[0], argv);
