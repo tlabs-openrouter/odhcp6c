@@ -589,7 +589,8 @@ static struct odhcp6c_entry* odhcp6c_find_entry(enum odhcp6c_state state, const 
 			(uint8_t*)c < &start[len] &&
 			(uint8_t*)odhcp6c_next_entry(c) <= &start[len];
 			c = odhcp6c_next_entry(c))
-		if (!memcmp(c, new, cmplen) && !memcmp(c->auxtarget, new->auxtarget, new->auxlen))
+		if (!memcmp(c, new, cmplen) && !memcmp(c->auxtarget, new->auxtarget, new->auxlen) &&
+		    c->iaid == new->iaid)
 			return c;
 
 	return NULL;
