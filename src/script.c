@@ -398,6 +398,7 @@ void script_call(const char *status, int delay, bool resume)
 		size_t sip_ip_len, sip_fqdn_len, aftr_name_len, cer_len, addr_len;
 		size_t s46_mapt_len, s46_mape_len, s46_lw_len, passthru_len;
 		size_t fos_88_len, fos_99_len, ncs_fqdn_len, client_id_len;
+		size_t syslog_collectors_len;
 
 		signal(SIGTERM, SIG_DFL);
 		if (delay > 0) {
@@ -435,6 +436,8 @@ void script_call(const char *status, int delay, bool resume)
 
 		uint8_t *client_id = odhcp6c_get_state(STATE_CLIENT_ID, &client_id_len);
 
+		struct in6_addr *syslog_collectors = odhcp6c_get_state(STATE_SYSLOG_COLLECTORS, &syslog_collectors_len);
+
 		ipv6_to_env("SERVER", addr, addr_len / sizeof(*addr));
 		ipv6_to_env("RDNSS", dns, dns_len / sizeof(*dns));
 		ipv6_to_env("SNTP_IP", sntp, sntp_ip_len / sizeof(*sntp));
@@ -452,6 +455,7 @@ void script_call(const char *status, int delay, bool resume)
 		s46_to_env(STATE_S46_MAPT, s46_mapt, s46_mapt_len);
 		s46_to_env(STATE_S46_LW, s46_lw, s46_lw_len);
 		bin_to_env(custom, custom_len);
+		ipv6_to_env("SYSLOG_COLLECTORS", syslog_collectors, syslog_collectors_len / sizeof(*syslog_collectors));
 
 		if (odhcp6c_is_bound()) {
 			entry_to_env("PREFIXES", prefix, prefix_len, ENTRY_PREFIX);
