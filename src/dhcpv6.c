@@ -953,6 +953,7 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 		odhcp6c_clear_state(STATE_DHCP4O6_SERVERS_88);
 		odhcp6c_clear_state(STATE_DHCP4O6_SERVERS_99);
 		odhcp6c_clear_state(STATE_NCS_FQDN);
+		odhcp6c_clear_state(STATE_SYSLOG_COLLECTORS);
 
 		// Parse and find all matching IAs
 		dhcpv6_for_each_option(opt, end, otype, olen, odata) {
@@ -1104,6 +1105,9 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 				odhcp6c_get_state(STATE_NCS_FQDN, &cur_len);
 				if (cur_len == 0)
 					odhcp6c_add_state(STATE_NCS_FQDN, odata, olen);
+			} else if (otype == DHCPV6_OPT_SYSLOG_COLLECTORS) {
+				if (olen % 16 == 0)
+					odhcp6c_add_state(STATE_SYSLOG_COLLECTORS, odata, olen);
 			} else {
 				odhcp6c_add_state(STATE_CUSTOM_OPTS, &odata[-4], olen + 4);
 			}
