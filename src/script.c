@@ -359,8 +359,7 @@ void script_call(const char *status, int delay, bool resume)
 		delay -= now - started;
 	}
 
-	if (resume || !action[0])
-		strncpy(action, status, sizeof(action) - 1);
+	strncpy(action, status, sizeof(action) - 1);
 
 	pid_t pid = fork();
 	if (pid > 0) {
