@@ -197,6 +197,7 @@ int init_dhcpv6(const char *ifname, unsigned int options, int sol_timeout)
 			htons(DHCPV6_OPT_S46_CONT_MAPE),
 			htons(DHCPV6_OPT_S46_CONT_MAPT),
 			htons(DHCPV6_OPT_S46_CONT_LW),
+			htons(DHCPV6_OPT_S46_PRIORITY),
 		};
 		odhcp6c_add_state(STATE_ORO, oro, sizeof(oro));
 
@@ -1012,6 +1013,7 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 		odhcp6c_clear_state(STATE_S46_MAPT);
 		odhcp6c_clear_state(STATE_S46_MAPE);
 		odhcp6c_clear_state(STATE_S46_LW);
+		odhcp6c_clear_state(STATE_S46_PRIORITY);
 		odhcp6c_clear_state(STATE_PASSTHRU);
 		odhcp6c_clear_state(STATE_CUSTOM_OPTS);
 		odhcp6c_clear_state(STATE_DHCP4O6_SERVERS);
@@ -1153,6 +1155,8 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 			} else if (otype == DHCPV6_OPT_SYSLOG_COLLECTORS) {
 				if (olen % 16 == 0)
 					odhcp6c_add_state(STATE_SYSLOG_COLLECTORS, odata, olen);
+			} else if (otype == DHCPV6_OPT_S46_PRIORITY) {
+				odhcp6c_add_state(STATE_S46_PRIORITY, odata, olen);
 			} else
 				odhcp6c_add_state(STATE_CUSTOM_OPTS, &odata[-4], olen + 4);
 

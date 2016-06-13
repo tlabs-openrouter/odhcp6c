@@ -116,6 +116,49 @@ static void ipv6_to_env(const char *name,
 	putenv(buf);
 }
 
+static void s46_prio_to_env(const uint16_t *s46_prio, size_t cnt)
+{
+	if (cnt == 0)
+		return;
+
+	char *str;
+	size_t strsize;
+
+	/* check for duplicate values */
+	for (size_t i = 0; i < (cnt - 1); i++)
+		for (size_t j = (i + 1); j < cnt; j++)
+			if (s46_prio[i] == s46_prio[j])
+				return;
+
+	FILE *fp = open_memstream(&str, &strsize);
+	fputs("S46PRIO=", fp);
+
+	for (size_t i = 0; i < cnt; i++) {
+		switch (ntohs(s46_prio[i])) {
+		case DHCPV6_OPT_AFTR_NAME:
+			fputs("ds-lite ", fp);
+			break;
+		case DHCPV6_OPT_DHCP4_O_DHCP6_SERVER:
+			fputs("dhcp4o6 ", fp);
+			break;
+		case DHCPV6_OPT_S46_CONT_MAPE:
+			fputs("map-e ", fp);
+			break;
+		case DHCPV6_OPT_S46_CONT_MAPT:
+			fputs("map-t ", fp);
+			break;
+		case DHCPV6_OPT_S46_CONT_LW:
+			fputs("lw4o6 ", fp);
+			break;
+		default:
+			fprintf(fp, "%d ", ntohs(s46_prio[i]));
+			break;
+		}
+	}
+	fclose(fp);
+	putenv(str);
+}
+
 static void fqdn_to_env(const char *name, const uint8_t *fqdn, size_t len)
 {
 	size_t buf_len = strlen(name);
@@ -420,7 +463,7 @@ void script_call(const char *status, int delay, bool resume)
 	} else if (pid == 0) {
 		size_t dns_len, search_len, custom_len, sntp_ip_len, ntp_ip_len, ntp_dns_len;
 		size_t sip_ip_len, sip_fqdn_len, aftr_name_len, cer_len, addr_len;
-		size_t s46_mapt_len, s46_mape_len, s46_lw_len, passthru_len;
+		size_t s46_mapt_len, s46_mape_len, s46_lw_len, s46_prio_len, passthru_len;
 		size_t fos_len, ncs_fqdn_len, client_id_len;
 		size_t syslog_collectors_len;
 
@@ -445,6 +488,7 @@ void script_call(const char *status, int delay, bool resume)
 		uint8_t *s46_mapt = odhcp6c_get_state(STATE_S46_MAPT, &s46_mapt_len);
 		uint8_t *s46_mape = odhcp6c_get_state(STATE_S46_MAPE, &s46_mape_len);
 		uint8_t *s46_lw = odhcp6c_get_state(STATE_S46_LW, &s46_lw_len);
+		uint16_t *s46_prio = odhcp6c_get_state(STATE_S46_PRIORITY, &s46_prio_len);
 		uint8_t *passthru = odhcp6c_get_state(STATE_PASSTHRU, &passthru_len);
 		uint8_t *ncs_fqdn = odhcp6c_get_state(STATE_NCS_FQDN, &ncs_fqdn_len);
 
@@ -476,6 +520,7 @@ void script_call(const char *status, int delay, bool resume)
 		s46_to_env(STATE_S46_MAPE, s46_mape, s46_mape_len);
 		s46_to_env(STATE_S46_MAPT, s46_mapt, s46_mapt_len);
 		s46_to_env(STATE_S46_LW, s46_lw, s46_lw_len);
+		s46_prio_to_env(s46_prio, s46_prio_len / sizeof(*s46_prio));
 		bin_to_env(custom, custom_len);
 		ipv6_to_env("SYSLOG_COLLECTORS", syslog_collectors, syslog_collectors_len / sizeof(*syslog_collectors));
 
