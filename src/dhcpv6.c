@@ -200,6 +200,9 @@ int init_dhcpv6(const char *ifname, unsigned int options, int sol_timeout)
 			htons(DHCPV6_OPT_S46_CONT_MAPE),
 			htons(DHCPV6_OPT_S46_CONT_MAPT),
 			htons(DHCPV6_OPT_S46_CONT_LW),
+#ifdef EXT_S46_PRIORITY
+			htons(DHCPV6_OPT_S46_PRIORITY),
+#endif
 		};
 		odhcp6c_add_state(STATE_ORO, oro, sizeof(oro));
 	}
@@ -997,6 +1000,7 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 		odhcp6c_clear_state(STATE_S46_MAPT);
 		odhcp6c_clear_state(STATE_S46_MAPE);
 		odhcp6c_clear_state(STATE_S46_LW);
+		odhcp6c_clear_state(STATE_S46_PRIORITY);
 		odhcp6c_clear_state(STATE_PASSTHRU);
 		odhcp6c_clear_state(STATE_CUSTOM_OPTS);
 		odhcp6c_clear_state(STATE_DHCP4O6_SERVERS_88);
@@ -1137,6 +1141,11 @@ static int dhcpv6_handle_reply(enum dhcpv6_msg orig, _unused const int rc,
 			} else if (otype == DHCPV6_OPT_S46_CONT_LW) {
 				odhcp6c_add_state(STATE_S46_LW, odata, olen);
 				passthru = false;
+	#ifdef EXT_S46_PRIORITY
+			} else if (otype == DHCPV6_OPT_S46_PRIORITY) {
+				odhcp6c_add_state(STATE_S46_PRIORITY, odata, olen);
+				passthru = false;
+	#endif
 			} else if (otype == DHCPV6_OPT_CLIENTID ||
 					otype == DHCPV6_OPT_SERVERID ||
 					otype == DHCPV6_OPT_IA_TA ||
