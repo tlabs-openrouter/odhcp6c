@@ -260,8 +260,12 @@ static void dhcpv6_send(enum dhcpv6_msg type, uint8_t trid[3], uint32_t ecs)
 	void *cl_id = odhcp6c_get_state(STATE_CLIENT_ID, &cl_id_len);
 
 	// Get Server ID
-	size_t srv_id_len;
-	void *srv_id = odhcp6c_get_state(STATE_SERVER_ID, &srv_id_len);
+	size_t srv_id_len = 0;
+	void *srv_id = NULL;
+
+	if (type != DHCPV6_MSG_REBIND) {
+		srv_id = odhcp6c_get_state(STATE_SERVER_ID, &srv_id_len);
+	}
 
 	// Build IA_PDs
 	size_t ia_pd_entries = 0, ia_pd_len = 0;
